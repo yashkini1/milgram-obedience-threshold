@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Obedience Threshold — Milgram</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #090b0e;
+    color: #f3f3f3;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    padding: 32px 5vw 22px;
+    border-bottom: 1px solid #333;
+}
+
+.eyebrow {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #999;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin: 5px 0;
+    font-size: clamp(34px, 6vw, 70px);
+    letter-spacing: -3px;
+}
+
+.subtitle {
+    color: #aaa;
+    max-width: 850px;
+    line-height: 1.5;
+}
+
+main {
+    padding: 28px 5vw 50px;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 24px;
+}
+
+.panel {
+    border: 1px solid #333;
+    background: #0d1014;
+}
+
+.simulation {
+    padding: 26px;
+}
+
+.stats {
+    padding: 24px;
+}
+
+.small-label {
+    color: #888;
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+}
+
+#voltage {
+    font-size: clamp(62px, 9vw, 120px);
+    font-weight: 800;
+    line-height: .9;
+    margin-top: 8px;
+}
+
+#shockLabel {
+    color: #aaa;
+    letter-spacing: 2px;
+    margin-top: 13px;
+    min-height: 22px;
+}
+
+/* PARTICIPANTS */
+
+#people {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 10px;
+    margin: 32px 0 15px;
+}
+
+.person {
+    position: relative;
+    height: 34px;
+    transition:
+        opacity .45s,
+        transform .45s;
+}
+
+.head {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #eee;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.body {
+    position: absolute;
+    width: 3px;
+    height: 17px;
+    background: #eee;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+}
+
+.person.refused {
+    opacity: .14;
+    transform: translateY(8px) scale(.7);
+}
+
+.person.just-refused {
+    animation: drop .7s ease;
+}
+
+@keyframes drop {
+    0%   { transform: translateY(0); opacity: 1; }
+    60%  { transform: translateY(10px); opacity: .4; }
+    100% { transform: translateY(8px) scale(.7); opacity: .14; }
+}
+
+/* GENERATOR */
+
+.generator {
+    margin-top: 28px;
+}
+
+.switches {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    gap: 3px;
+}
+
+.switch {
+    height: 38px;
+    border: 1px solid #444;
+    background: #171a1f;
+    position: relative;
+    transition: .25s;
+}
+
+.switch.passed {
+    background: #dedede;
+}
+
+.switch.current {
+    outline: 2px solid white;
+    transform: translateY(-4px);
+}
+
+.switch-number {
+    position: absolute;
+    top: 43px;
+    font-size: 8px;
+    color: #777;
+    left: 50%;
+    transform: translateX(-50%) rotate(-55deg);
+    transform-origin: center;
+}
+
+/* CURVE */
+
+.curve-box {
+    margin-top: 58px;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+canvas {
+    width: 100%;
+    height: 180px;
+}
+
+/* AUTHORITY / LEARNER */
+
+.psychology {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.message {
+    border: 1px solid #333;
+    padding: 16px;
+    min-height: 92px;
+}
+
+.message-title {
+    font-size: 10px;
+    color: #777;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+}
+
+#authority {
+    font-family: Georgia, serif;
+    font-size: 17px;
+    line-height: 1.35;
+}
+
+#learner {
+    color: #bbb;
+    line-height: 1.4;
+}
+
+/* STATS */
+
+.stat {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.stat-value {
+    font-size: 46px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+#event {
+    min-height: 75px;
+    line-height: 1.45;
+    color: #bbb;
+}
+
+button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 9px;
+    background: transparent;
+    border: 1px solid #ddd;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: white;
+    color: black;
+}
+
+.legend {
+    margin-top: 24px;
+    color: #888;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.interpretation {
+    border: 1px solid #333;
+    margin-top: 24px;
+    padding: 22px;
+    line-height: 1.6;
+    color: #bbb;
+}
+
+.interpretation strong {
+    color: white;
+}
+
+@media(max-width: 800px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .psychology {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="eyebrow">
+        Behavioral Study of Obedience · Stanley Milgram
+    </div>
+
+    <h1>OBEDIENCE THRESHOLD</h1>
+
+    <div class="subtitle">
+        A computational reconstruction of all 40 participants:
+        how obedience changed as the apparent cost of following
+        authority increased from 15 to 450 volts.
+    </div>
+</header>
+
+<main>
+
+<div class="dashboard">
+
+<section class="panel simulation">
+
+    <div class="small-label">Shock level</div>
+
+    <div id="voltage">15 V</div>
+
+    <div id="shockLabel">SLIGHT SHOCK</div>
+
+    <!-- PARTICIPANTS -->
+    <div id="people"></div>
+
+    <!-- SHOCK GENERATOR -->
+    <div class="generator">
+
+        <div class="small-label">
+            30-switch shock generator
+        </div>
+
+        <div class="switches" id="switches"></div>
+
+    </div>
+
+    <!-- COMPUTED CURVE -->
+    <div class="curve-box">
+
+        <div class="small-label">
+            Computed obedience survival curve
+        </div>
+
+        <canvas id="curve"></canvas>
+
+    </div>
+
+    <!-- PSYCHOLOGICAL LAYER -->
+    <div class="psychology">
+
+        <div class="message">
+            <div class="message-title">
+                AUTHORITY PRESSURE
+            </div>
+
+            <div id="authority">
+                The experiment begins.
+            </div>
+        </div>
+
+        <div class="message">
+            <div class="message-title">
+                LEARNER RESPONSE
+            </div>
+
+            <div id="learner">
+                Responding to the memory task.
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+<aside class="panel stats">
+
+    <div class="stat">
+        <div class="small-label">
+            Continuing
+        </div>
+
+        <div class="stat-value" id="remaining">
+            40
+        </div>
+    </div>
+
+    <div class="stat">
+        <div class="small-label">
+            Obedience rate
+        </div>
+
+        <div class="stat-value" id="rate">
+            100%
+        </div>
+    </div>
+
+    <div class="stat">
+        <div class="small-label">
+            Refused
+        </div>
+
+        <div class="stat-value" id="refused">
+            0
+        </div>
+    </div>
+
+    <div class="stat">
+        <div class="small-label">
+            Current event
+        </div>
+
+        <div id="event">
+            No participant has refused.
+        </div>
+    </div>
+
+    <button id="advance">
+        ADVANCE +15 V
+    </button>
+
+    <button id="auto">
+        RUN EXPERIMENT
+    </button>
+
+    <button id="reset">
+        RESET
+    </button>
+
+    <div class="legend">
+        Each figure = 1 participant.<br>
+        Faded figure = refused to continue.<br><br>
+
+        At 450 V, 26 of 40 participants
+        reached the maximum shock level.
+    </div>
+
+</aside>
+
+</div>
+
+
+<div class="interpretation">
+
+<strong>What is being computed?</strong>
+
+Rather than displaying only the final 65% result, this program
+reconstructs the changing population of obedient participants at
+every 15-V step. Each participant is assigned the refusal threshold
+reported in Milgram's data. The program then calculates the number
+remaining, refusal rate, obedience percentage, and survival curve
+as apparent harm increases.
+
+</div>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   EXACT DATA FROM TABLE 1 IN THE ASSIGNED CASE STUDY
+
+   "Number Who Refused to Continue at This Level"
+
+   15–285 V : 0
+   300 V    : 5
+   315 V    : 4
+   330 V    : 2
+   345 V    : 1
+   360 V    : 1
+   375 V    : 0
+   390 V    : 1
+   405 V    : 0
+   420 V    : 0
+   435 V    : 0
+   450 V    : 26 reached maximum
+
+   The 26 at 450 V are NOT treated as dropouts.
+   They are the participants classified as obedient because
+   they continued to the maximum available shock.
+========================================================== */
+
+const TOTAL = 40;
+
+const voltages =
+    Array.from({ length: 30 }, (_, i) => (i + 1) * 15);
+
+
+/* Participants who STOPPED at each level */
+
+const refusals = {
+    300: 5,
+    315: 4,
+    330: 2,
+    345: 1,
+    360: 1,
+    375: 0,
+    390: 1,
+    405: 0,
+    420: 0,
+    435: 0
+};
+
+
+/* ==========================================================
+   BUILD INDIVIDUAL PARTICIPANTS
+
+   We do not know WHICH named participant stopped at each
+   voltage, only how many did.
+
+   Therefore anonymous IDs are deterministically assigned to
+   the aggregate refusal counts. This preserves the published
+   distribution without inventing participant characteristics.
+========================================================== */
+
+const thresholds = [];
+
+Object.entries(refusals).forEach(([voltage, count]) => {
+
+    for (let i = 0; i < count; i++) {
+        thresholds.push(Number(voltage));
+    }
+
+});
+
+/* Remaining 26 reached the maximum */
+
+while (thresholds.length < TOTAL) {
+    thresholds.push(null);
+}
+
+
+const participants = thresholds.map((threshold, index) => ({
+    id: index + 1,
+    threshold: threshold
+}));
+
+
+/* ==========================================================
+   STATE
+========================================================== */
+
+let step = 0;
+let running = false;
+let timer = null;
+
+
+/* ==========================================================
+   CREATE PEOPLE
+========================================================== */
+
+const peopleContainer =
+    document.getElementById("people");
+
+participants.forEach(person => {
+
+    const el = document.createElement("div");
+
+    el.className = "person";
+    el.id = `person-${person.id}`;
+
+    el.innerHTML = `
+        <div class="head"></div>
+        <div class="body"></div>
+    `;
+
+    el.title =
+        person.threshold === null
+        ? `Participant ${person.id}: reached 450 V`
+        : `Participant ${person.id}: refused at ${person.threshold} V`;
+
+    peopleContainer.appendChild(el);
+
+});
+
+
+/* ==========================================================
+   CREATE 30-SWITCH GENERATOR
+========================================================== */
+
+const switches =
+    document.getElementById("switches");
+
+voltages.forEach((voltage, i) => {
+
+    const sw = document.createElement("div");
+
+    sw.className = "switch";
+    sw.dataset.index = i;
+
+    const number =
+        document.createElement("span");
+
+    number.className = "switch-number";
+    number.textContent = voltage;
+
+    sw.appendChild(number);
+    switches.appendChild(sw);
+
+});
+
+
+/* ==========================================================
+   EXACT GENERATOR CATEGORY LABELS
+========================================================== */
+
+function shockCategory(v) {
+
+    if (v <= 60)
+        return "SLIGHT SHOCK";
+
+    if (v <= 120)
+        return "MODERATE SHOCK";
+
+    if (v <= 180)
+        return "STRONG SHOCK";
+
+    if (v <= 240)
+        return "VERY STRONG SHOCK";
+
+    if (v <= 300)
+        return "INTENSE SHOCK";
+
+    if (v <= 360)
+        return "EXTREME INTENSITY SHOCK";
+
+    if (v <= 420)
+        return "DANGER: SEVERE SHOCK";
+
+    return "XXX";
+}
+
+
+/* ==========================================================
+   LEARNER RESPONSE
+
+   Only claims supported by the assigned case study are used.
+========================================================== */
+
+function learnerResponse(v) {
+
+    if (v < 300)
+        return "The learner continues responding as the apparent shocks increase.";
+
+    if (v === 300)
+        return "The learner pounds on the wall and demands to be released.";
+
+    if (v > 300)
+        return "The learner gives no further answers. Silence is treated as an incorrect response.";
+
+}
+
+
+/* ==========================================================
+   AUTHORITY PRESSURE
+
+   These are the standardized prods reported in the study.
+   The original study used them sequentially when a participant
+   resisted; they were NOT tied to particular voltages.
+
+   Therefore this visualization does not falsely assign each
+   prod to a voltage.
+========================================================== */
+
+function authorityMessage(v) {
+
+    if (v < 300)
+        return "The experimenter directs the teacher to continue after incorrect responses.";
+
+    return 'If the teacher resists: "Please continue" → "The experiment requires that you continue" → "It is absolutely essential that you continue" → "You have no other choice, you must go on."';
+
+}
+
+
+/* ==========================================================
+   COMPUTE STATE FROM RAW THRESHOLDS
+========================================================== */
+
+function calculateState(voltage) {
+
+    /*
+       A participant whose threshold is the current voltage
+       refused to continue at that level.
+
+       Therefore they are counted as having refused once that
+       level is reached in the simulation.
+    */
+
+    const stopped =
+        participants.filter(p =>
+            p.threshold !== null &&
+            p.threshold <= voltage
+        );
+
+    return {
+        refused: stopped.length,
+        remaining: TOTAL - stopped.length,
+        percentage:
+            ((TOTAL - stopped.length) / TOTAL) * 100
+    };
+
+}
+
+
+/* ==========================================================
+   UPDATE PARTICIPANTS
+========================================================== */
+
+function updatePeople(voltage) {
+
+    participants.forEach(person => {
+
+        const el =
+            document.getElementById(`person-${person.id}`);
+
+        const hasRefused =
+            person.threshold !== null &&
+            person.threshold <= voltage;
+
+        const justRefused =
+            person.threshold === voltage;
+
+        el.classList.toggle(
+            "refused",
+            hasRefused
+        );
+
+        if (justRefused) {
+
+            el.classList.remove("just-refused");
+
+            void el.offsetWidth;
+
+            el.classList.add("just-refused");
+        }
+
+    });
+
+}
+
+
+/* ==========================================================
+   CURRENT EVENT
+========================================================== */
+
+function eventText(voltage) {
+
+    if (voltage === 450) {
+        return "26 of 40 participants reached the maximum 450-V level — 65% of the sample.";
+    }
+
+    const count =
+        refusals[voltage] || 0;
+
+    if (count === 0) {
+
+        if (voltage < 300)
+            return "No participant refused at this level.";
+
+        return `0 participants refused at ${voltage} V.`;
+
+    }
+
+    return `${count} participant${count === 1 ? "" : "s"} refused to continue at ${voltage} V.`;
+
+}
+
+
+/* ==========================================================
+   DRAW COMPUTED OBEDIENCE CURVE
+========================================================== */
+
+function drawCurve(currentVoltage) {
+
+    const canvas =
+        document.getElementById("curve");
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const dpr =
+        window.devicePixelRatio || 1;
+
+    canvas.width =
+        rect.width * dpr;
+
+    canvas.height =
+        rect.height * dpr;
+
+    const ctx =
+        canvas.getContext("2d");
+
+    ctx.scale(dpr, dpr);
+
+    const width = rect.width;
+    const height = rect.height;
+
+    const left = 35;
+    const right = 10;
+    const top = 10;
+    const bottom = 28;
+
+    const graphWidth =
+        width - left - right;
+
+    const graphHeight =
+        height - top - bottom;
+
+
+    /* axes */
+
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+
+    ctx.moveTo(left, top);
+    ctx.lineTo(left, height - bottom);
+    ctx.lineTo(width - right, height - bottom);
+
+    ctx.stroke();
+
+
+    /* labels */
+
+    ctx.fillStyle = "#777";
+    ctx.font = "10px Arial";
+
+    ctx.fillText(
+        "40",
+        8,
+        top + 5
+    );
+
+    ctx.fillText(
+        "0",
+        15,
+        height - bottom + 4
+    );
+
+    ctx.fillText(
+        "15 V",
+        left,
+        height - 7
+    );
+
+    ctx.fillText(
+        "450 V",
+        width - 43,
+        height - 7
+    );
+
+
+    /* survival line */
+
+    ctx.strokeStyle = "#eeeeee";
+    ctx.lineWidth = 2.5;
+
+    ctx.beginPath();
+
+    let started = false;
+
+    voltages.forEach((v, i) => {
+
+        if (v > currentVoltage)
+            return;
+
+        const state =
+            calculateState(v);
+
+        const x =
+            left +
+            (i / (voltages.length - 1)) *
+            graphWidth;
+
+        const y =
+            top +
+            (1 - state.remaining / TOTAL) *
+            graphHeight;
+
+        if (!started) {
+
+            ctx.moveTo(x, y);
+            started = true;
+
+        } else {
+
+            ctx.lineTo(x, y);
+
+        }
+
+    });
+
+    ctx.stroke();
+
+
+    /* current point */
+
+    const currentIndex =
+        voltages.indexOf(currentVoltage);
+
+    const currentState =
+        calculateState(currentVoltage);
+
+    const x =
+        left +
+        (currentIndex /
+        (voltages.length - 1)) *
+        graphWidth;
+
+    const y =
+        top +
+        (1 -
+        currentState.remaining / TOTAL) *
+        graphHeight;
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+}
+
+
+/* ==========================================================
+   RENDER
+========================================================== */
+
+function render() {
+
+    const voltage =
+        voltages[step];
+
+    const state =
+        calculateState(voltage);
+
+
+    document.getElementById("voltage")
+        .textContent =
+        `${voltage} V`;
+
+
+    document.getElementById("shockLabel")
+        .textContent =
+        shockCategory(voltage);
+
+
+    document.getElementById("remaining")
+        .textContent =
+        state.remaining;
+
+
+    document.getElementById("refused")
+        .textContent =
+        state.refused;
+
+
+    document.getElementById("rate")
+        .textContent =
+        `${state.percentage.toFixed(1)}%`;
+
+
+    document.getElementById("event")
+        .textContent =
+        eventText(voltage);
+
+
+    document.getElementById("learner")
+        .textContent =
+        learnerResponse(voltage);
+
+
+    document.getElementById("authority")
+        .textContent =
+        authorityMessage(voltage);
+
+
+    updatePeople(voltage);
+
+
+    document.querySelectorAll(".switch")
+        .forEach((sw, i) => {
+
+            sw.classList.toggle(
+                "passed",
+                i <= step
+            );
+
+            sw.classList.toggle(
+                "current",
+                i === step
+            );
+
+        });
+
+
+    drawCurve(voltage);
+
+}
+
+
+/* ==========================================================
+   ADVANCE
+========================================================== */
+
+function advance() {
+
+    if (step >= voltages.length - 1) {
+
+        stopAuto();
+        return;
+
+    }
+
+    step++;
+    render();
+
+}
+
+
+/* ==========================================================
+   AUTO ANIMATION
+========================================================== */
+
+function startAuto() {
+
+    if (running) {
+
+        stopAuto();
+        return;
+
+    }
+
+    running = true;
+
+    document.getElementById("auto")
+        .textContent = "PAUSE";
+
+    timer =
+        setInterval(() => {
+
+            advance();
+
+            if (step >= voltages.length - 1)
+                stopAuto();
+
+        }, 450);
+
+}
+
+
+function stopAuto() {
+
+    clearInterval(timer);
+
+    running = false;
+
+    document.getElementById("auto")
+        .textContent = "RUN EXPERIMENT";
+
+}
+
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+function reset() {
+
+    stopAuto();
+
+    step = 0;
+
+    render();
+
+}
+
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+document.getElementById("advance")
+    .addEventListener("click", advance);
+
+document.getElementById("auto")
+    .addEventListener("click", startAuto);
+
+document.getElementById("reset")
+    .addEventListener("click", reset);
+
+
+window.addEventListener(
+    "resize",
+    () => drawCurve(voltages[step])
+);
+
+
+/* INITIAL DISPLAY */
+
+render();
+
+</script>
+
+</body>
+</html>
